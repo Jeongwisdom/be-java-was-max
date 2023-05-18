@@ -8,12 +8,13 @@ import org.slf4j.Logger;
 
 import request.RequestLine;
 
-public class HttpResponseUtils {
+public class HttpResponse {
 	private String contentType;
 	private String statusCode;
 	private ResponseBody responseBody;
-	public HttpResponseUtils(RequestLine requestLine) throws IOException {
-		this.contentType = requestLine.getContentType();
+
+	public HttpResponse(RequestLine requestLine) throws IOException {
+		this.contentType = ContentType.findContentType(requestLine.getUrl());
 		this.statusCode = StatusCode.getStatusCode(requestLine.getHttpMethod());
 		this.responseBody = new ResponseBody(requestLine.getUrl());
 	}
@@ -26,6 +27,7 @@ public class HttpResponseUtils {
 		} else {
 			responseHeader(dos, logger, 0);
 		}
+		logger.debug("----------------------------");
 	}
 
 	private void responseHeader(DataOutputStream dos, Logger logger, int lengthOfBodyContent) {

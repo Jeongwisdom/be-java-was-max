@@ -5,17 +5,16 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 
-public class HttpRequestUtils {
+public class HttpRequest {
 	private static final int CONTENT_LENGTH_INDEX = 1;
-	private BufferedReader br;
+
 	private RequestLine requestLine;
 	private int contentLength;
-	public HttpRequestUtils(BufferedReader br) throws IOException {
-		this.br = br;
+	public HttpRequest(BufferedReader br) throws IOException {
 		requestLine = new RequestLine(br.readLine());
 	}
 
-	public void debug(Logger logger) throws IOException {
+	public void debug(BufferedReader br, Logger logger) throws IOException {
 		logger.debug("request line: {}", requestLine.getRequestLine());
 		String requestHeader;
 		while (!(requestHeader = br.readLine()).equals("")) {
@@ -26,9 +25,9 @@ public class HttpRequestUtils {
 		}
 	}
 
-	public void processRequestBody() throws IOException {
+	public void processRequestBody(BufferedReader br) throws IOException {
 		if(contentLength > 0) {
-			new RequestBody(br, contentLength);
+			RequestBody.process(br, requestLine.getUrl(),  contentLength);
 		}
 	}
 

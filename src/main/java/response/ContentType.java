@@ -1,4 +1,4 @@
-package request;
+package response;
 
 public enum ContentType {
 	HTML("text/html;charset=utf-8", "html"),
@@ -9,15 +9,17 @@ public enum ContentType {
 	JPG("image/jpeg", "jpg"),
 	WOFF("application/x-font-woff", "woff");
 
-	private String contentType;
-	private String extension;
+	private final String contentType;
+	private final String extension;
 
 	ContentType(String contentType, String extension) {
 		this.contentType = contentType;
 		this.extension = extension;
 	}
 
-	public static String getContentType(String contentType) {
+	public static String findContentType(String url) {
+		String[] urls = url.split("\\.");
+		String contentType = urls[urls.length - 1];
 		ContentType[] contentTypes = values();
 		for (ContentType type : contentTypes) {
 			if (type.extension.equals(contentType)) {
