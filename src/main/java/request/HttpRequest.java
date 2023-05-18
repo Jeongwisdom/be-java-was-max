@@ -5,11 +5,16 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 
+import response.Status;
+import webserver.SessionId;
+
 public class HttpRequest {
 	private static final int CONTENT_LENGTH_INDEX = 1;
 
-	private RequestLine requestLine;
+	private final RequestLine requestLine;
 	private int contentLength;
+	private Status status;
+
 	public HttpRequest(BufferedReader br) throws IOException {
 		requestLine = new RequestLine(br.readLine());
 	}
@@ -25,13 +30,18 @@ public class HttpRequest {
 		}
 	}
 
-	public void processRequestBody(BufferedReader br) throws IOException {
+	public void processRequestBody(BufferedReader br, SessionId sessionId) throws IOException {
+		status = Status.OK;
 		if(contentLength > 0) {
-			RequestBody.process(br, requestLine.getUrl(),  contentLength);
+			status = RequestBody.process(br, requestLine.getRequestTarget(), sessionId, contentLength);
 		}
 	}
 
 	public RequestLine getRequestLine() {
 		return requestLine;
+	}
+
+	public Status getStatus() {
+		return status;
 	}
 }

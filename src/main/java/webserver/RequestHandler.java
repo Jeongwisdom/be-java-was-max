@@ -29,12 +29,13 @@ public class RequestHandler implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            SessionId sessionId = new SessionId();
             HttpRequest httpRequest = new HttpRequest(br);
             httpRequest.debug(br, logger);
-            httpRequest.processRequestBody(br);
+            httpRequest.processRequestBody(br, sessionId);
 
-            HttpResponse httpResponse = new HttpResponse(httpRequest.getRequestLine());
-            httpResponse.response(out, logger);
+            HttpResponse httpResponse = new HttpResponse(httpRequest.getRequestLine(), httpRequest.getStatus());
+            httpResponse.response(out, logger, sessionId);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

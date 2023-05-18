@@ -2,16 +2,17 @@ package request;
 
 public class RequestLine {
 	private static final int METHOD_INDEX = 0;
-	private static final int URL_INDEX = 1;
+	private static final int REQUEST_TARGET_INDEX = 1;
 
 	private String requestLine;
 	private String httpMethod;
-	private String url;
+	private String requestTarget;
+
 	public RequestLine(String requestLine) {
 		this.requestLine = requestLine;
 		String[] requestLines = requestLine.split(" ");
 		httpMethod = requestLines[METHOD_INDEX];
-		url = requestLines[URL_INDEX];
+		requestTarget = requestLines[REQUEST_TARGET_INDEX];
 	}
 
 	public String getRequestLine() {
@@ -22,7 +23,7 @@ public class RequestLine {
 		return httpMethod;
 	}
 
-	public String getUrl() {
-		return url;
+	public String getRequestTarget() {
+		return requestTarget;
 	}
 }
