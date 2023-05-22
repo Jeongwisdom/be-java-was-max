@@ -23,10 +23,10 @@ public class RequestBody {
 		Status status = Status.BAD_REQUEST;
 		br.read(reader);
 		String[] queries = String.valueOf(reader).split("&");
-		if(requestTarget.contains("/user/create")) {
+		if(requestTarget.equals("/user/create")) {
 			status = createUser(queries);
 		}
-		if(requestTarget.contains("/user/login")) {
+		if(requestTarget.equals("/user/login")) {
 			status = userLogin(queries, sessionId);
 		}
 		return status;
@@ -35,16 +35,16 @@ public class RequestBody {
 	private static Status userLogin(String[] queries, SessionId sessionId) {
 		User user = Database.findUserById(splitQuery(queries[USER_ID]));
 		if(user == null || !(user.getPassword().equals(splitQuery(queries[PASSWORD])))) {
-			return Status.UNAUTHORIZED;
+			return Status.FOUND_LOGIN_FAIL;
 		}
 		sessionId.SetSid();
 		Database.addSession(sessionId.getSid(), user.getUserId());
-		return Status.FOUND;
+		return Status.FOUND_SUCCESS;
 	}
 
 	private static Status createUser(String[] queries) {
 		Database.addUser(new User(splitQuery(queries[USER_ID]), splitQuery(queries[PASSWORD]), splitQuery(queries[NICKNAME]), splitQuery(queries[EMAIL])));
-		return Status.FOUND;
+		return Status.FOUND_SUCCESS;
 	}
 
 	private static String splitQuery(String query) {

@@ -8,6 +8,7 @@ public class ResponseBody {
 	private static final String HTML_PATH = "src/main/resources/templates";
 	private static final String STATIC_PATH = "src/main/resources/static";
 	static final String HOME_PATH = "/index.html";
+	static final String LOGIN_FAIL_PATH = "/user/login_failed.html";
 
 	private byte[] body;
 

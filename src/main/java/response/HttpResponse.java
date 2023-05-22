@@ -44,7 +44,7 @@ public class HttpResponse {
 	}
 
 	private void setCookie(DataOutputStream dos, String requestTarget, SessionId sessionId) throws IOException {
-		if(requestTarget.contains("/user/login") && status.getStatusCode() == 302) {
+		if(requestTarget.equals("/user/login") && status.getStatusCode() == 302) {
 			dos.writeBytes("Set-Cookie: sid=" + sessionId + "; Path=/");
 		}
 	}
@@ -58,7 +58,11 @@ public class HttpResponse {
 
 	private void redirectLocation(DataOutputStream dos, int statusCode) throws IOException {
 		if(status.getStatusCode() == 302) {
-			dos.writeBytes("Location: " + HOME_PATH + "\r\n");
+			if(status.equals(Status.FOUND_LOGIN_FAIL)) {
+				dos.writeBytes("Location: " + LOGIN_FAIL_PATH + "\r\n");
+			} else {
+				dos.writeBytes("Location: " + HOME_PATH + "\r\n");
+			}
 		}
 	}
 

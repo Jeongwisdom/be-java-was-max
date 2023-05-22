@@ -4,9 +4,9 @@ import static response.ResponseBody.*;
 
 public enum Status {
 	OK(200, " OK"),
-	FOUND(302, " FOUND"),
-	BAD_REQUEST(400, " BAD REQUEST"),
-	UNAUTHORIZED(401, " UNAUTHORIZED");
+	FOUND_SUCCESS(302, " FOUND"),
+	FOUND_LOGIN_FAIL(302, " FOUND"),
+	BAD_REQUEST(400, " BAD REQUEST");
 
 	private int statusCode;
 	private String statusText;

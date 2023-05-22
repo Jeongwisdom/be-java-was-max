@@ -28,6 +28,7 @@ public class HttpRequest {
 				contentLength = Integer.parseInt(requestHeader.split(" ")[CONTENT_LENGTH_INDEX]);
 			}
 		}
+		logger.debug("-------------------------------");
 	}
 
 	public void processRequestBody(BufferedReader br, SessionId sessionId) throws IOException {
