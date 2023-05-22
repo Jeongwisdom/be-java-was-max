@@ -8,8 +8,12 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Database {
-    private static Map<String, User> users = Maps.newHashMap();
-    private static Map<String, User> session = Maps.newHashMap();
+    private static Map<String, User> users = Map.of(
+        "wis", new User("wis","a", "wis", "wis@abc.de")
+    );
+    private static Map<String, User> session = Map.of(
+        "webserver.SessionId@794d84c4", findUserById("wis")
+    );
 
     public static void addUser(User user) {
         users.put(user.getUserId(), user);
@@ -25,5 +29,9 @@ public class Database {
 
     public static Collection<User> findAll() {
         return users.values();
+    }
+
+    public static User findUserBySid(String sid) {
+        return session.get(sid);
     }
 }

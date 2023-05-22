@@ -12,4 +12,8 @@ public class SessionId {
 	public String getSid() {
 		return sid;
 	}
+
+	public void setSid(String sid) {
+		this.sid = sid;
+	}
 }

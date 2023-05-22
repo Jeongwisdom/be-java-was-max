@@ -10,22 +10,27 @@ import webserver.SessionId;
 
 public class HttpRequest {
 	private static final int CONTENT_LENGTH_INDEX = 1;
+	private static final int SID_NUMBER = 1;
 
 	private final RequestLine requestLine;
 	private int contentLength;
 	private Status status;
 
-	public HttpRequest(BufferedReader br) throws IOException {
-		requestLine = new RequestLine(br.readLine());
+	public HttpRequest(String requestLine) {
+		this.requestLine = new RequestLine(requestLine);
 	}
 
-	public void debug(BufferedReader br, Logger logger) throws IOException {
+	public void debug(BufferedReader br, SessionId sessionId, Logger logger) throws IOException {
 		logger.debug("request line: {}", requestLine.getRequestLine());
 		String requestHeader;
 		while (!(requestHeader = br.readLine()).equals("")) {
 			logger.debug("{}", requestHeader);
 			if(requestHeader.contains("Content-Length")) {
 				contentLength = Integer.parseInt(requestHeader.split(" ")[CONTENT_LENGTH_INDEX]);
+			}
+			if(requestHeader.contains("sid=")) {
+				String sid = requestHeader.split("sid=")[SID_NUMBER];
+				sessionId.setSid(sid);
 			}
 		}
 		logger.debug("-------------------------------");

@@ -5,6 +5,7 @@ import static response.ResponseBody.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 
@@ -17,23 +18,24 @@ public class HttpResponse {
 	private Status status;
 	private ResponseBody responseBody;
 
-	public HttpResponse(RequestLine requestLine, Status status) throws IOException {
+	public HttpResponse(RequestLine requestLine, Status status, SessionId sessionId) {
 		this.requestTarget = requestLine.getRequestTarget();
 		this.contentType = ContentType.findContentType(requestTarget);
 		this.status = status;
-		this.responseBody = new ResponseBody(requestTarget);
+		this.responseBody = new ResponseBody();
 	}
 
-	public void response(OutputStream out, Logger logger, SessionId sessionId) {
+	public void response(OutputStream out, Logger logger, SessionId sessionId) throws IOException {
+		this.responseBody.setBody(requestTarget, sessionId);
 		DataOutputStream dos = new DataOutputStream(out);
 		responseHeader(dos, logger, sessionId);
-		responseBody(dos, logger, responseBody.getBody());
+		responseBody(dos, logger);
 	}
 
 	private void responseHeader(DataOutputStream dos, Logger logger, SessionId sessionId) {
 		try {
 			dos.writeBytes("HTTP/1.1 " + status.getStatusCode() + status.getStatusText() + "\r\n");
-			redirectLocation(dos, status.getStatusCode());
+			redirectLocation(dos);
 			dos.writeBytes("Content-Type: " + contentType + "\r\n");
 			putContentLength(dos);
 			setCookie(dos, requestTarget, sessionId);
@@ -56,7 +58,7 @@ public class HttpResponse {
 		}
 	}
 
-	private void redirectLocation(DataOutputStream dos, int statusCode) throws IOException {
+	private void redirectLocation(DataOutputStream dos) throws IOException {
 		if(status.getStatusCode() == 302) {
 			if(status.equals(Status.FOUND_LOGIN_FAIL)) {
 				dos.writeBytes("Location: " + LOGIN_FAIL_PATH + "\r\n");
@@ -66,9 +68,9 @@ public class HttpResponse {
 		}
 	}
 
-	private void responseBody(DataOutputStream dos, Logger logger, byte[] body) {
+	private void responseBody(DataOutputStream dos, Logger logger) {
 		try {
-			dos.write(body, 0, body.length);
+			dos.write(responseBody.getBody(), 0, responseBody.getBody().length);
 			dos.flush();
 		} catch (IOException e) {
 			logger.error(e.getMessage());
