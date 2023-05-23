@@ -41,6 +41,9 @@ public class HttpRequest {
 		if(contentLength > 0) {
 			status = RequestBody.process(br, requestLine.getRequestTarget(), sessionId, contentLength);
 		}
+		if(requestLine.getRequestTarget().contains("/logout")) {
+			status = Status.FOUND_SUCCESS;
+		}
 	}
 
 	public RequestLine getRequestLine() {

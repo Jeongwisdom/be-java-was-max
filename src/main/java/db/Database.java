@@ -11,16 +11,15 @@ public class Database {
     private static Map<String, User> users = Map.of(
         "wis", new User("wis","a", "wis", "wis@abc.de")
     );
-    private static Map<String, User> session = Map.of(
-        "webserver.SessionId@794d84c4", findUserById("wis")
-    );
+    private static Map<String, User> session = Maps.newHashMap();
 
     public static void addUser(User user) {
         users.put(user.getUserId(), user);
     }
 
     public static void addSession(String sessionId, String userId) {
-        session.put(sessionId, findUserById(userId));
+        User user = findUserById(userId);
+        session.put(sessionId, user);
     }
 
     public static User findUserById(String userId) {
@@ -33,5 +32,9 @@ public class Database {
 
     public static User findUserBySid(String sid) {
         return session.get(sid);
+    }
+
+    public static User deleteSid(String sid) {
+        return session.remove(sid);
     }
 }

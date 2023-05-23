@@ -63,14 +63,19 @@
         </div>
         <div class="collapse navbar-collapse" id="navbar-collapse2">
             <ul class="nav navbar-nav navbar-right">
-                <li class="active"><a href="../index.html">Posts</a></li>
+                <li><a href="../index.html">Posts</a></li>
+                <li class="active"><a href="list.html" role="button">회원목록</a></li>
                 {{^sid}}
-                <li><a href="user/login.html" role="button">로그인</a></li>
-                <li><a href="user/form.html" role="button">회원가입</a></li>
+                <li><a href="login.html" role="button">로그인</a></li>
+                <li><a href="form.html" role="button">회원가입</a></li>
                 {{/sid}}
                 {{#sid}}
                 <li><a href="#" role="button">{{name}}님</a></li>
-                <li><a href="#" role="button">로그아웃</a></li>
+                <li>
+                    <form name="question" method="post" action="logout">
+                        <button type="submit" class="a">로그아웃</button>
+                    </form>
+                </li>
                 <li><a href="#" role="button">개인정보수정</a></li>
                 {{/sid}}
             </ul>
@@ -88,12 +93,11 @@
                 </tr>
               </thead>
               <tbody>
+              {{#list}}
                 <tr>
-                    <th scope="row">1</th> <td>javajigi</td> <td>자바지기</td> <td>javajigi@sample.net</td><td><a href="#" class="btn btn-success" role="button">수정</a></td>
+                    <th scope="row">{{index}}</th> <td>{{userId}}</td> <td>{{name}}</td> <td>{{email}}</td><td><a href="#" class="btn btn-success" role="button">수정</a></td>
                 </tr>
-                <tr>
-                    <th scope="row">2</th> <td>slipp</td> <td>슬립</td> <td>slipp@sample.net</td><td><a href="#" class="btn btn-success" role="button">수정</a></td>
-                </tr>
+              {{/list}}
               </tbody>
           </table>
         </div>

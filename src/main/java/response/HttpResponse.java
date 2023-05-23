@@ -5,10 +5,10 @@ import static response.ResponseBody.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 
+import db.Database;
 import request.RequestLine;
 import webserver.SessionId;
 
@@ -26,9 +26,9 @@ public class HttpResponse {
 	}
 
 	public void response(OutputStream out, Logger logger, SessionId sessionId) throws IOException {
-		this.responseBody.setBody(requestTarget, sessionId);
 		DataOutputStream dos = new DataOutputStream(out);
 		responseHeader(dos, logger, sessionId);
+		this.responseBody.setBody(requestTarget, sessionId);
 		responseBody(dos, logger);
 	}
 
@@ -39,15 +39,24 @@ public class HttpResponse {
 			dos.writeBytes("Content-Type: " + contentType + "\r\n");
 			putContentLength(dos);
 			setCookie(dos, requestTarget, sessionId);
+			deleteCookie(dos, requestTarget, sessionId);
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 	}
 
+	private void deleteCookie(DataOutputStream dos, String requestTarget, SessionId sessionId) throws IOException {
+		if(requestTarget.contains("/logout")) {
+			dos.writeBytes("Set-Cookie: sid=" + sessionId.getSid() + "; Max-Age=0; Path=/");
+			Database.deleteSid(sessionId.getSid());
+			sessionId.logout();
+		}
+	}
+
 	private void setCookie(DataOutputStream dos, String requestTarget, SessionId sessionId) throws IOException {
 		if(requestTarget.equals("/user/login") && status.getStatusCode() == 302) {
-			dos.writeBytes("Set-Cookie: sid=" + sessionId + "; Path=/");
+			dos.writeBytes("Set-Cookie: sid=" + sessionId.getSid() + "; Path=/");
 		}
 	}
 

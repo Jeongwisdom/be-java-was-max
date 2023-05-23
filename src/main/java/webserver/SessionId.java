@@ -16,4 +16,8 @@ public class SessionId {
 	public void setSid(String sid) {
 		this.sid = sid;
 	}
+
+	public void logout() {
+		this.sid = null;
+	}
 }
