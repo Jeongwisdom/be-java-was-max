@@ -1,7 +1,5 @@
 package response;
 
-import static response.ResponseBody.*;
-
 public enum Status {
 	OK(200, " OK"),
 	FOUND_SUCCESS(302, " FOUND"),

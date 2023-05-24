@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import db.Database;
+import model.Article;
 import model.User;
 import webserver.SessionId;
 
@@ -19,15 +20,17 @@ public class ResponseBody {
 	static final int SID_LENGTH = 8;
 	static final int NAME_LENGTH = 8;
 	static final int LIST_LENGTH = 9;
+	static final int ARTICLE_LENGTH = 12;
 
 	private byte[] body;
 
 	public ResponseBody() {}
 
-	public void setBody(String url, SessionId sessionId) throws IOException {
+	public void setBody(String url, SessionId sessionId, Long index) throws IOException {
 		if(url.contains("html")) {
 			StringBuffer stringBuffer = new StringBuffer(Files.readString(new File(HTML_PATH + url).toPath()));
 			stringBuffer = checkSid(stringBuffer, sessionId.getSid(), url);
+			stringBuffer = showArticle(stringBuffer, url, index);
 			body = String.valueOf(stringBuffer).getBytes();
 		} else if(url.equals("/") || url.equals("/user/logout")){
 			StringBuffer stringBuffer = new StringBuffer(Files.readString(new File(HTML_PATH + HOME_PATH).toPath()));
@@ -41,9 +44,28 @@ public class ResponseBody {
 		}
 	}
 
+	private StringBuffer showArticle(StringBuffer stringBuffer, String url, Long articleIndex) {
+		if(url.equals("/qna/show.html")) {
+			Article article = Database.findArticleByIndex(articleIndex);
+			int articleStart = stringBuffer.indexOf("{{#article}}");
+			int articleEnd = stringBuffer.indexOf("{{/article}}", articleStart);
+			String repeat = stringBuffer.substring(articleStart + ARTICLE_LENGTH, articleEnd);
+			StringBuilder list = new StringBuilder();
+			String articles = repeat;
+			articles = articles.replace("{{title}}", article.getTitle());
+			articles = articles.replace("{{author}}", article.getAuthor());
+			articles = articles.replace("{{contents}}", article.getContents());
+			articles = articles.replace("{{writeDate}}", article.getWriteDate());
+			articles = articles.replace("{{hits}}", String.valueOf(article.getHits()));
+			list.append(articles);
+			stringBuffer.replace(articleStart, articleEnd + ARTICLE_LENGTH, list.toString());
+		}
+		return stringBuffer;
+	}
+
 	private StringBuffer checkSid(StringBuffer stringBuffer, String sid, String url) throws IOException {
 		if(sid == null) {
-			if(url.equals("/user/list.html")) {
+			if(url.equals("/user/list.html") || url.equals("/qna/form.html")) {
 				stringBuffer = new StringBuffer(Files.readString(new File(HTML_PATH + LOGIN_PATH).toPath()));
 			}
 			int startIndex = stringBuffer.indexOf("{{#sid}}");
@@ -56,17 +78,18 @@ public class ResponseBody {
 			deleteStringBuffer(stringBuffer, end, end);
 		} else {
 			if(url.equals("/user/list.html")) {
-				List<User> userList = new ArrayList<>(Database.findAll());
+				List<User> userList = new ArrayList<>(Database.findAllUsers());
 				int listStart = stringBuffer.indexOf("{{#list}}");
 				int listEnd = stringBuffer.indexOf("{{/list}}", listStart);
 				String repeat = stringBuffer.substring(listStart + LIST_LENGTH, listEnd);
 				StringBuilder list = new StringBuilder();
-				for (int i = 0; i < userList.size(); i++) {
-					repeat = repeat.replace("{{index}}", String.valueOf(i));
-					repeat = repeat.replace("{{userId}}", userList.get(i).getUserId());
-					repeat = repeat.replace("{{name}}", userList.get(i).getName());
-					repeat = repeat.replace("{{email}}", userList.get(i).getEmail());
-					list.append(repeat);
+				for (int i = userList.size() - 1; i >= 0; i--) {
+					String users = repeat;
+					users = users.replace("{{index}}", String.valueOf(i));
+					users = users.replace("{{userId}}", userList.get(i).getUserId());
+					users = users.replace("{{name}}", userList.get(i).getName());
+					users = users.replace("{{email}}", userList.get(i).getEmail());
+					list.append(users);
 				}
 				stringBuffer.replace(listStart, listEnd + LIST_LENGTH, list.toString());
 			}
@@ -81,6 +104,28 @@ public class ResponseBody {
 
 			int name = stringBuffer.indexOf("{{name}}");
 			stringBuffer.replace(name, name + NAME_LENGTH, Database.findUserBySid(sid).getName());
+		}
+		stringBuffer = showArticles(stringBuffer, url);
+		return stringBuffer;
+	}
+
+	private StringBuffer showArticles(StringBuffer stringBuffer, String url) {
+		if(url.equals("/index.html")) {
+			List<Article> articleList = new ArrayList<>(Database.findAllArticles());
+			int listStart = stringBuffer.indexOf("{{#list}}");
+			int listEnd = stringBuffer.indexOf("{{/list}}", listStart);
+			String repeat = stringBuffer.substring(listStart + LIST_LENGTH, listEnd);
+			StringBuilder list = new StringBuilder();
+			for (int i = articleList.size() - 1; i >= 0; i--) {
+				String articles = repeat;
+				articles = articles.replace("{{articleIndex}}", String.valueOf(articleList.get(i).getArticleIndex()));
+				articles = articles.replace("{{title}}", articleList.get(i).getTitle());
+				articles = articles.replace("{{author}}", articleList.get(i).getAuthor());
+				articles = articles.replace("{{writeDate}}", articleList.get(i).getWriteDate().substring(0, 8));
+				articles = articles.replace("{{hits}}", String.valueOf(articleList.get(i).getHits()));
+				list.append(articles);
+			}
+			stringBuffer.replace(listStart, listEnd + LIST_LENGTH, list.toString());
 		}
 		return stringBuffer;
 	}

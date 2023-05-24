@@ -17,6 +17,7 @@ public class HttpResponse {
 	private String contentType;
 	private Status status;
 	private ResponseBody responseBody;
+	private Long index;
 
 	public HttpResponse(RequestLine requestLine, Status status, SessionId sessionId) {
 		this.requestTarget = requestLine.getRequestTarget();
@@ -28,7 +29,12 @@ public class HttpResponse {
 	public void response(OutputStream out, Logger logger, SessionId sessionId) throws IOException {
 		DataOutputStream dos = new DataOutputStream(out);
 		responseHeader(dos, logger, sessionId);
-		this.responseBody.setBody(requestTarget, sessionId);
+		if(requestTarget.contains("show.html")) {
+			String[] urls = requestTarget.split("/");
+			index = Long.valueOf(urls[2]);
+			requestTarget = "/" + urls[1] + "/" + urls[3];
+		}
+		this.responseBody.setBody(requestTarget, sessionId, index);
 		responseBody(dos, logger);
 	}
 

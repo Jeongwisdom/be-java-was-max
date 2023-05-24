@@ -14,6 +14,9 @@ public class RequestBody {
 	private static final int PASSWORD = 1;
 	private static final int NICKNAME = 2;
 	private static final int EMAIL = 3;
+	private static final int AUTHOR = 0;
+	private static final int TITLE = 1;
+	private static final int CONTENTS = 2;
 
 	public static Status process(BufferedReader br, String requestTarget, SessionId sessionId, int contentLength) throws IOException {
 		char[] reader = new char[contentLength];
@@ -26,7 +29,18 @@ public class RequestBody {
 		if(requestTarget.equals("/user/login")) {
 			status = userLogin(queries, sessionId);
 		}
+		if(requestTarget.equals("/qna/articles")) {
+			status = writeArticle(queries, sessionId);
+		}
 		return status;
+	}
+
+	private static Status writeArticle(String[] queries, SessionId sessionId) {
+		if(sessionId != null) {
+			Database.addArticle(splitQuery(queries[AUTHOR]), splitQuery(queries[TITLE]), splitQuery(queries[CONTENTS]));
+			return Status.FOUND_SUCCESS;
+		}
+		return Status.FOUND_LOGIN_FAIL;
 	}
 
 	private static Status userLogin(String[] queries, SessionId sessionId) {
